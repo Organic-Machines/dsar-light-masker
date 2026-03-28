@@ -1,0 +1,94 @@
+const transform = {
+    mask: (str) => {
+        if (str.length <= 2) return "***";
+        return str[0] + "*".repeat(str.length - 2) + str[str.length - 1];
+    },
+    hash: (str) => {
+        return CryptoJS.SHA256(str).toString();
+    },
+    redact: () => "[REDACTED]"
+};
+
+let rawData = [];
+let headers = [];
+
+document.getElementById('csvFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            rawData = results.data;
+            headers = results.meta.fields;
+            renderMappingUI();
+        }
+    });
+});
+
+function renderMappingUI() {
+    const container = document.getElementById('headerList');
+    const section = document.getElementById('mappingSection');
+    container.innerHTML = '';
+    section.classList.remove('hidden');
+
+    headers.forEach(header => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 border-b";
+        div.innerHTML = `
+            <span class="font-medium">${header}</span>
+            <select class="header-rule border p-1 rounded" data-header="${header}">
+                <option value="none">Keep Original</option>
+                <option value="mask">Mask (Partial)</option>
+                <option value="hash">Hash (SHA-256)</option>
+                <option value="redact">Redact (Full)</option>
+            </select>
+        `;
+        container.appendChild(div);
+    });
+}
+
+document.getElementById('processBtn').addEventListener('click', function() {
+    const rules = {};
+    document.querySelectorAll('.header-rule').forEach(select => {
+        rules[select.dataset.header] = select.value;
+    });
+
+    const processedData = rawData.map(row => {
+        let newRow = { ...row };
+        for (let header in rules) {
+            const rule = rules[header];
+            if (rule === 'mask') newRow[header] = transform.mask(row[header]);
+            if (rule === 'hash') newRow[header] = transform.hash(row[header]);
+            if (rule === 'redact') newRow[header] = transform.redact();
+        }
+        return newRow;
+    });
+
+    showPreview(processedData);
+});
+
+function showPreview(data) {
+    const table = document.getElementById('previewTable');
+    const section = document.getElementById('previewSection');
+    section.classList.remove('hidden');
+    
+    // Show only first 5 rows
+    const previewRows = data.slice(0, 5);
+    let html = `<thead><tr>${headers.map(h => `<th class="border-b p-2">${h}</th>`).join('')}</tr></thead><tbody>`;
+    
+    previewRows.forEach(row => {
+        html += `<tr>${headers.map(h => `<td class="border-b p-2 text-gray-600">${row[h]}</td>`).join('')}</tr>`;
+    });
+    html += `</tbody>`;
+    table.innerHTML = html;
+
+    // Set up download button
+    document.getElementById('downloadBtn').onclick = () => {
+        const csv = Papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "masked_data.csv");
+        link.click();
+    };
+}

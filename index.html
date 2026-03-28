@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSAR-Light CSV Masker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <div class="max-w-4xl mx-auto py-12 px-4">
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl font-bold text-blue-700">DSAR-Light CSV Masker</h1>
+            <p class="text-gray-600 mt-2">Privacy-first PII redaction. No data leaves your browser.</p>
+        </header>
+
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">1. Upload CSV</h2>
+            <input type="file" id="csvFile" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+        </section>
+
+        <section id="mappingSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">2. Map Transformation Rules</h2>
+            <div id="headerList" class="space-y-3">
+                </div>
+            <button id="processBtn" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Process Data</button>
+        </section>
+
+        <section id="previewSection" class="bg-white p-6 rounded-lg shadow-md mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">3. Preview & Export</h2>
+            <div class="overflow-x-auto mb-4">
+                <table id="previewTable" class="w-full text-left text-sm border-collapse">
+                    </table>
+            </div>
+            <button id="downloadBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Download Masked CSV</button>
+        </section>
+
+        <footer class="mt-12 text-xs text-center text-gray-400 border-t pt-6">
+            <p><strong>Notice:</strong> This utility is a client-side tool. Data processing occurs entirely within your browser's memory. No data is transmitted to our servers. This tool is provided "as-is" without warranties. Users are responsible for ensuring compliance with local data protection laws (GDPR/CCPA).</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
