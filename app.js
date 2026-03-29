@@ -13,9 +13,6 @@ const transform = {
     redact: () => "[REDACTED]"
 };
 
-let rawData = [];
-let headers = [];
-
 document.getElementById('csvFile').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
     allFilesData = []; // Clear previous batch
@@ -74,6 +71,7 @@ document.getElementById('processBtn').addEventListener('click', function() {
         rules[select.dataset.header] = select.value;
     });
 
+    // Loop through every file in the batch
     allFilesData.forEach(fileObj => {
         const processedRows = fileObj.data.map(row => {
             let newRow = { ...row };
@@ -93,7 +91,17 @@ document.getElementById('processBtn').addEventListener('click', function() {
     });
 
     alert("Batch processing complete! Check your downloads folder.");
+    showPreview(processedData);
 });
+
+function downloadFile(data, filename) {
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", filename);
+    link.click();
+}
 
 function showPreview(data) {
     const table = document.getElementById('previewTable');
@@ -119,13 +127,4 @@ function showPreview(data) {
         link.setAttribute("download", "masked_data.csv");
         link.click();
     };
-}
-
-function downloadFile(data, filename) {
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", filename);
-    link.click();
 }
