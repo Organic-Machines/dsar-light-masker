@@ -105,6 +105,7 @@ function downloadFile(data, filename) {
     link.click();
 }
 
+/*
 function showPreview(data) {
     const table = document.getElementById('previewTable');
     const section = document.getElementById('previewSection');
@@ -130,3 +131,4 @@ function showPreview(data) {
         link.click();
     };
 }
+*/
