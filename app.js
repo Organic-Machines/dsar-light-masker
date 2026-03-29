@@ -48,6 +48,12 @@ function renderMappingUI() {
     container.innerHTML = '';
     section.classList.remove('hidden');
 
+    // Reset the Master Rule dropdown to its default state
+    document.getElementById('masterRule').selectedIndex = 0; 
+    
+    container.innerHTML = '';
+    section.classList.remove('hidden');
+
     // Convert Set back to Array to loop
     Array.from(globalHeaders).forEach(header => {
         const div = document.createElement('div');
@@ -128,3 +134,16 @@ function showPreview(data) {
         link.click();
     };
 }
+
+// Listen for the Master Rule change
+document.getElementById('masterRule').addEventListener('change', function(e) {
+    const selectedRule = e.target.value;
+    
+    // Find all the individual header dropdowns
+    const allSelectors = document.querySelectorAll('.header-rule');
+    
+    // Update each one to match the master rule
+    allSelectors.forEach(select => {
+        select.value = selectedRule;
+    });
+});

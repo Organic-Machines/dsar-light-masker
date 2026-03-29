@@ -11,6 +11,17 @@
 <body class="bg-gray-50 text-gray-900 font-sans">
 
     <div class="max-w-4xl mx-auto py-12 px-4">
+        <div class="bg-blue-50 p-4 rounded-md mb-6 border border-blue-200 flex items-center justify-between">
+            <span class="text-sm font-bold text-blue-800 uppercase tracking-wide">Bulk Action:</span>
+            <select id="masterRule" class="border p-1 rounded bg-white text-sm">
+                <option value="" disabled selected>Set all columns to...</option>
+                <option value="none">Keep Original</option>
+                <option value="mask">Mask (Partial)</option>
+                <option value="hash">Hash (SHA-256)</option>
+                <option value="redact">Redact (Full)</option>
+            </select>
+        </div>
+
         <header class="mb-10 text-center">
             <h1 class="text-3xl font-bold text-blue-700">DSAR-Light CSV Masker</h1>
             <p class="text-gray-600 mt-2">Privacy-first PII redaction. No data leaves your browser.</p>
