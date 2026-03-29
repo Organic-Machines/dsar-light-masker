@@ -45,8 +45,6 @@ document.getElementById('csvFile').addEventListener('change', function(e) {
 function renderMappingUI() {
     const container = document.getElementById('headerList');
     const section = document.getElementById('mappingSection');
-    container.innerHTML = '';
-    section.classList.remove('hidden');
 
     // Reset the Master Rule dropdown to its default state
     document.getElementById('masterRule').selectedIndex = 0; 
