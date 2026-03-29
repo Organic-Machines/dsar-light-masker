@@ -14,14 +14,16 @@ let headers = [];
 
 document.getElementById('csvFile').addEventListener('change', function(e) {
     const file = e.target.files[0];
-    Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            rawData = results.data;
-            headers = results.meta.fields;
-            renderMappingUI();
-        }
+    Array.from(files).forEach(file => {
+            Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                rawData = results.data;
+                headers = results.meta.fields;
+                renderMappingUI();
+            }
+        });
     });
 });
 
