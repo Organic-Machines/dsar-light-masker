@@ -1,3 +1,7 @@
+// New storage for multiple files
+let allFilesData = []; 
+let globalHeaders = new Set(); // Using a Set to collect unique headers from ALL files
+
 const transform = {
     mask: (str) => {
         if (str.length <= 2) return "***";
@@ -13,17 +17,31 @@ let rawData = [];
 let headers = [];
 
 document.getElementById('csvFile').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    Array.from(files).forEach(file => {
+    const files = Array.from(e.target.files);
+    allFilesData = []; // Clear previous batch
+    globalHeaders.clear();
+
+    const parsePromises = files.map(file => {
+        return new Promise((resolve) => {
             Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                rawData = results.data;
-                headers = results.meta.fields;
-                renderMappingUI();
-            }
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // Store the data AND the original filename
+                    allFilesData.push({
+                        name: file.name,
+                        data: results.data
+                    });
+                    // Add headers to our global list
+                    results.meta.fields.forEach(h => globalHeaders.add(h));
+                    resolve();
+                }
+            });
         });
+    });
+
+    Promise.all(parsePromises).then(() => {
+        renderMappingUI();
     });
 });
 
@@ -33,7 +51,8 @@ function renderMappingUI() {
     container.innerHTML = '';
     section.classList.remove('hidden');
 
-    headers.forEach(header => {
+    // Convert Set back to Array to loop
+    Array.from(globalHeaders).forEach(header => {
         const div = document.createElement('div');
         div.className = "flex items-center justify-between p-2 border-b";
         div.innerHTML = `
@@ -55,19 +74,36 @@ document.getElementById('processBtn').addEventListener('click', function() {
         rules[select.dataset.header] = select.value;
     });
 
-    const processedData = rawData.map(row => {
-        let newRow = { ...row };
-        for (let header in rules) {
-            const rule = rules[header];
-            if (rule === 'mask') newRow[header] = transform.mask(row[header]);
-            if (rule === 'hash') newRow[header] = transform.hash(row[header]);
-            if (rule === 'redact') newRow[header] = transform.redact();
-        }
-        return newRow;
+    // Loop through every file in the batch
+    allFilesData.forEach(fileObj => {
+        const processedRows = fileObj.data.map(row => {
+            let newRow = { ...row };
+            for (let header in rules) {
+                const rule = rules[header];
+                if (row[header]) { // Only mask if the column exists in this specific file
+                    if (rule === 'mask') newRow[header] = transform.mask(row[header]);
+                    if (rule === 'hash') newRow[header] = transform.hash(row[header]);
+                    if (rule === 'redact') newRow[header] = transform.redact();
+                }
+            }
+            return newRow;
+        });
+
+        // Trigger download immediately for this file
+        downloadFile(processedRows, `masked_${fileObj.name}`);
     });
 
-    showPreview(processedData);
+    alert("Batch processing complete! Check your downloads folder.");
 });
+
+function downloadFile(data, filename) {
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", filename);
+    link.click();
+}
 
 function showPreview(data) {
     const table = document.getElementById('previewTable');
