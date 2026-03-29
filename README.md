@@ -1,6 +1,6 @@
 # DSAR-Light CSV Masker 🛡️
 
-**Version:** 1.0.0  
+**Version:** 1.0.4  
 **License:** MIT  
 **Privacy Status:** 100% Client-Side (No data leaves your browser)
 
